@@ -28,6 +28,7 @@ Aplicativo mobile desenvolvido em **React Native** com integração ao **Supabas
 ---
 
 ## 📂 Estrutura do Projeto
+
 src/
 │
 ├── services/
