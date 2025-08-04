@@ -1,4 +1,4 @@
-# 📱 Carteirinha Estudante App
+# 📱 CED - Carteirinha de Estudante Digital
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
 ![React Native](https://img.shields.io/badge/React%20Native-0.74-blue)
 ![Supabase](https://img.shields.io/badge/Supabase-integrado-green)
