@@ -43,7 +43,7 @@ src/
 │
 └── App.js # Ponto de entrada
 
-🤝 Contribuindo
+##🤝 Contribuindo
 Contribuições são bem-vindas! Siga os passos:
 
 1. Faça um fork do projeto
