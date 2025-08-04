@@ -43,6 +43,8 @@ src/
 │
 └── App.js # Ponto de entrada
 
+---
+
 ##🤝 Contribuindo
 Contribuições são bem-vindas! Siga os passos:
 
