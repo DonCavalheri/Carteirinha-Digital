@@ -28,7 +28,7 @@ Aplicativo mobile desenvolvido em **React Native** com integração ao **Supabas
 ---
 
 ## 📂 Estrutura do Projeto
-
+'''
 CED/
 ├── assets/                # Imagens, ícones
 │   └── logo.png
@@ -61,7 +61,7 @@ CED/
 │
 ├── App.js                 # Chama a navegação
 └── package.json
-
+'''
 
 ---
 
