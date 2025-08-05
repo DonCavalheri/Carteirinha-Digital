@@ -30,18 +30,16 @@ Aplicativo mobile desenvolvido em **React Native** com integração ao **Supabas
 ## 📂 Estrutura do Projeto
 
 CED/
-│
 ├── assets/                # Imagens, ícones
 │   └── logo.png
 │
-├── src/ \n
-│   ├── screens/           # Cada tela do app 
-│   │   ├── SplashScreen.js  
-│   │   ├── Login.js 
-│   │   ├── Register.js 
-│   │   ├── Credencial.js  
-│   │   ├── Credencial.js 
-│   │   ├── Dados.js 
+├── src/
+│   ├── screens/           # Cada tela do app
+│   │   ├── SplashScreen.js
+│   │   ├── Login.js
+│   │   ├── Register.js
+│   │   ├── Credencial.js
+│   │   ├── Dados.js
 │   │   ├── Home.js
 │   │   ├── ForgotPassword.js
 │   │   ├── Eventos.js
@@ -52,14 +50,14 @@ CED/
 │   │   └── Configuracoes.js
 │   │
 │   ├── components/        # Botões, cards, cabeçalhos reutilizáveis
-│   │   └── CustomButton.js 
+│   │   └── CustomButton.js
 │   │
 │   ├── navigation/        # Stack e Tab Navigator
-│   │   ├── StackNavigator.js 
-│   │   └── TabNavigator.js 
+│   │   ├── StackNavigator.js
+│   │   └── TabNavigator.js
 │   │
 │   └── services/
-│       └── supabase.js OK   # Conexão com Supabase
+│       └── supabase.js     # Conexão com Supabase
 │
 ├── App.js                 # Chama a navegação
 └── package.json
