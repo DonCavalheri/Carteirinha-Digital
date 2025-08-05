@@ -34,13 +34,13 @@ CED/
 ├── assets/                # Imagens, ícones
 │   └── logo.png
 │
-├── src/
-│   ├── screens/           # Cada tela do app
-│   │   ├── SplashScreen.js
-│   │   ├── Login.js 
-│   │   ├── Register.js 
-│   │   ├── Credencial.js 
-│   │   ├── Credencial.js 
+├── src/ \n
+│   ├── screens/           # Cada tela do app \n
+│   │   ├── SplashScreen.js  \n
+│   │   ├── Login.js  \n
+│   │   ├── Register.js \n
+│   │   ├── Credencial.js  \n
+│   │   ├── Credencial.js \n
 │   │   ├── Dados.js 
 │   │   ├── Home.js
 │   │   ├── ForgotPassword.js
