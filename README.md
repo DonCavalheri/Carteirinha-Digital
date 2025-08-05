@@ -29,20 +29,41 @@ Aplicativo mobile desenvolvido em **React Native** com integração ao **Supabas
 
 ## 📂 Estrutura do Projeto
 
-src/
+CED/
 │
-├── services/
-│ ├── supabase.js # Conexão com o Supabase
-│ └── cache.js # Funções de cache/local storage
+├── assets/                # Imagens, ícones
+│   └── logo.png
 │
-├── screens/
-│ ├── Home.js
-│ ├── Login.js
-│ ├── Cadastro.js
-│ ├── SplashScreen.js
-│ └── ...
+├── src/
+│   ├── screens/           # Cada tela do app
+│   │   ├── SplashScreen.js
+│   │   ├── Login.js 
+│   │   ├── Register.js 
+│   │   ├── Credencial.js 
+│   │   ├── Credencial.js 
+│   │   ├── Dados.js 
+│   │   ├── Home.js
+│   │   ├── ForgotPassword.js
+│   │   ├── Eventos.js
+│   │   ├── Ingressos.js
+│   │   ├── Frequencia.js
+│   │   ├── Calendario.js
+│   │   ├── Notificacoes.js
+│   │   └── Configuracoes.js
+│   │
+│   ├── components/        # Botões, cards, cabeçalhos reutilizáveis
+│   │   └── CustomButton.js 
+│   │
+│   ├── navigation/        # Stack e Tab Navigator
+│   │   ├── StackNavigator.js 
+│   │   └── TabNavigator.js 
+│   │
+│   └── services/
+│       └── supabase.js OK   # Conexão com Supabase
 │
-└── App.js # Ponto de entrada
+├── App.js                 # Chama a navegação
+└── package.json
+
 
 ---
 
