@@ -4,21 +4,25 @@ import CustomButton from '../components/CustomButton';
 import { supabase } from '../services/supabase';
 
 export default function Register({ navigation }) {
+  const [nome, setNome] = useState('');
+  const [cpf, setCpf] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [senha, setSenha] = useState('');
 
   const handleRegister = async () => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { name } }
-    });
+    if (!nome || !cpf || !email || !senha) {
+      Alert.alert('Erro', 'Preencha todos os campos');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('estudantes')
+      .insert([{ id: cpf, nome, email, senha }]);
 
     if (error) {
       Alert.alert('Erro', error.message);
     } else {
-      Alert.alert('Sucesso', 'Conta criada! Verifique seu email.');
+      Alert.alert('Sucesso', 'Conta criada com sucesso!');
       navigation.navigate('Login');
     }
   };
@@ -26,9 +30,33 @@ export default function Register({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Crie sua conta</Text>
-      <TextInput placeholder="Nome completo" style={styles.input} value={name} onChangeText={setName} />
-      <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} autoCapitalize="none" />
-      <TextInput placeholder="Senha" style={styles.input} secureTextEntry value={password} onChangeText={setPassword} />
+      <TextInput
+        placeholder="Nome completo"
+        style={styles.input}
+        value={nome}
+        onChangeText={setNome}
+      />
+      <TextInput
+        placeholder="CPF"
+        style={styles.input}
+        value={cpf}
+        onChangeText={setCpf}
+        autoCapitalize="none"
+      />
+      <TextInput
+        placeholder="Email"
+        style={styles.input}
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+      />
+      <TextInput
+        placeholder="Senha"
+        style={styles.input}
+        secureTextEntry
+        value={senha}
+        onChangeText={setSenha}
+      />
       <CustomButton title="Criar conta" onPress={handleRegister} />
     </View>
   );

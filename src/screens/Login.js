@@ -4,13 +4,24 @@ import CustomButton from '../components/CustomButton';
 import { supabase } from '../services/supabase';
 
 export default function Login({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [senha, setSenha] = useState('');
 
   const handleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      Alert.alert('Erro', error.message);
+    if (!cpf || !senha) {
+      Alert.alert('Erro', 'Preencha todos os campos');
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('estudantes')
+      .select('*')
+      .eq('id', cpf)
+      .eq('senha', senha)
+      .single();
+
+    if (error || !data) {
+      Alert.alert('Erro', 'CPF ou senha inválidos');
     } else {
       navigation.replace('HomeTabs');
     }
@@ -19,11 +30,24 @@ export default function Login({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
-      <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} autoCapitalize="none" />
-      <TextInput placeholder="Senha" style={styles.input} secureTextEntry value={password} onChangeText={setPassword} />
+      <TextInput
+        placeholder="CPF"
+        style={styles.input}
+        value={cpf}
+        onChangeText={setCpf}
+        autoCapitalize="none"
+      />
+      <TextInput
+        placeholder="Senha"
+        style={styles.input}
+        secureTextEntry
+        value={senha}
+        onChangeText={setSenha}
+      />
       <CustomButton title="Acessar" onPress={handleLogin} />
-      <Text style={styles.link} onPress={() => navigation.navigate('ForgotPassword')}>Esqueceu sua senha?</Text>
-      <Text style={styles.link} onPress={() => navigation.navigate('Register')}>Criar conta</Text>
+      <Text style={styles.link} onPress={() => navigation.navigate('Register')}>
+        Criar conta
+      </Text>
     </View>
   );
 }
