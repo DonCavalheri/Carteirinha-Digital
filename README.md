@@ -35,12 +35,12 @@ CED/
 │   └── logo.png
 │
 ├── src/ \n
-│   ├── screens/           # Cada tela do app \n
-│   │   ├── SplashScreen.js  \n
-│   │   ├── Login.js  \n
-│   │   ├── Register.js \n
-│   │   ├── Credencial.js  \n
-│   │   ├── Credencial.js \n
+│   ├── screens/           # Cada tela do app 
+│   │   ├── SplashScreen.js  
+│   │   ├── Login.js 
+│   │   ├── Register.js 
+│   │   ├── Credencial.js  
+│   │   ├── Credencial.js 
 │   │   ├── Dados.js 
 │   │   ├── Home.js
 │   │   ├── ForgotPassword.js
