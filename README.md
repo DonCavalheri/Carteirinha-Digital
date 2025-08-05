@@ -4,7 +4,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-integrado-green)
 ![Licença MIT](https://img.shields.io/badge/license-MIT-green)
 
-Aplicativo mobile desenvolvido em **React Native** com integração ao **Supabase**, permitindo login, cadastro e acesso a funcionalidades como eventos, ingressos e credencial de estudante.  
+Aplicativo mobile desenvolvido em **React Native** com integração ao **Supabase**, permitindo login, cadastro e acesso a funcionalidades como eventos, ingressos, frequência, calendário e a credencial de estudante.  
 
 ---
 
@@ -13,7 +13,7 @@ Aplicativo mobile desenvolvido em **React Native** com integração ao **Supabas
 - 🔑 Autenticação de usuários (login/cadastro) via Supabase  
 - 🏷️ Exibição da carteirinha de estudante digital  
 - 📅 Acesso a eventos e ingressos  
-- 💾 Cache local para manter login offline  
+- 💾 Cache local para credencial estudantil offline  
 - 🖥️ Interface moderna e simples de usar  
 
 ---
