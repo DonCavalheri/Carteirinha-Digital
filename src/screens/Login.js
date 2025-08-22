@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, TouchableOpacity, Image } from 'react-native';
 import CustomButton from '../components/CustomButton';
+import CustomInput from '../components/CustomInput';
 import { supabase } from '../services/supabase';
 
 export default function Login({ navigation }) {
@@ -29,32 +30,67 @@ export default function Login({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput
-        placeholder="CPF"
-        style={styles.input}
-        value={cpf}
-        onChangeText={setCpf}
-        autoCapitalize="none"
+      {/* Logo no topo */}
+      <Image 
+        source={require('../../assets/logo.png')} 
+        style={{ width: 120, height: 120, marginBottom: 20 }} 
       />
-      <TextInput
-        placeholder="Senha"
-        style={styles.input}
-        secureTextEntry
-        value={senha}
-        onChangeText={setSenha}
-      />
-      <CustomButton title="Acessar" onPress={handleLogin} />
-      <Text style={styles.link} onPress={() => navigation.navigate('Register')}>
-        Criar conta
-      </Text>
+
+      {/* Card branco arredondado */}
+      <View style={styles.card}>
+        <Text style={styles.title}>Login</Text>
+
+        <CustomInput placeholder="CPF" value={cpf} onChangeText={setCpf} />
+        <CustomInput placeholder="Senha" value={senha} onChangeText={setSenha} secureTextEntry />
+
+        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+          <Text style={styles.forgot}>Esqueceu sua senha?</Text>
+        </TouchableOpacity>
+
+        <CustomButton title="Acessar" onPress={handleLogin} />
+
+        <View style={styles.footer}>
+          <Text style={{ color: '#555' }}>Não possui uma conta?</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.link}> Criar conta</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1E3A8A' },
-  title: { fontSize: 24, fontWeight: 'bold', color: 'white', marginBottom: 20 },
-  input: { backgroundColor: 'white', width: '90%', padding: 10, marginVertical: 5, borderRadius: 5 },
-  link: { color: 'white', marginTop: 10, textDecorationLine: 'underline' },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#1E3A8A', 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 25,
+    width: '90%',
+    alignItems: 'center'
+  },
+  title: { 
+    fontSize: 26, 
+    fontWeight: 'bold', 
+    color: '#1E3A8A',
+    marginBottom: 15 
+  },
+  forgot: { 
+    color: '#1E3A8A', 
+    marginVertical: 10, 
+    alignSelf: 'flex-start' 
+  },
+  footer: { 
+    flexDirection: 'row', 
+    marginTop: 15 
+  },
+  link: { 
+    color: '#1E3A8A', 
+    fontWeight: 'bold' 
+  }
 });
