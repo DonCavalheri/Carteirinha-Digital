@@ -16,9 +16,9 @@ export default function TabNavigator() {
         tabBarIcon: ({ color, size }) => {
           let iconName;
           if (route.name === 'Início') iconName = 'home';
+          else if (route.name === 'Ingressos') iconName = 'ticket';
           else if (route.name === 'Credencial') iconName = 'card';
           else if (route.name === 'Eventos') iconName = 'calendar';
-          else if (route.name === 'Ingressos') iconName = 'ticket';
           else if (route.name === 'Dados') iconName = 'person';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -28,9 +28,9 @@ export default function TabNavigator() {
       })}
     >
       <Tab.Screen name="Início" component={Home} />
+      <Tab.Screen name="Ingressos" component={Ingressos} />
       <Tab.Screen name="Credencial" component={Credencial} />
       <Tab.Screen name="Eventos" component={Eventos} />
-      <Tab.Screen name="Ingressos" component={Ingressos} />
       <Tab.Screen name="Dados" component={Dados} />
     </Tab.Navigator>
   );
