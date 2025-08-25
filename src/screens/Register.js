@@ -2,19 +2,57 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { theme } from '../theme';
+import { supabase } from '../services/supabase';
 
 export default function Register({ navigation }) {
   const [name, setName] = useState('');
+  const [cpf, setCpf] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleRegister = () => {
-    if (!name || !email || !password) {
+  const handleRegister = async () => {
+    if (!name || !cpf || !email || !password) {
       Alert.alert('Erro', 'Preencha todos os campos!');
       return;
     }
-    Alert.alert('Sucesso', `Conta criada para ${name}`);
-    navigation.navigate('Login');
+
+    try {
+      // 1) Criar usuário no Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (authError) {
+        Alert.alert('Erro', authError.message);
+        return;
+      }
+
+      // 2) Salvar dados adicionais na tabela `estudantes`
+      const { error: insertError } = await supabase
+        .from('estudantes')
+        .insert([
+          {
+            cpf: cpf,
+            email,
+            nome: name,
+            validade: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+            // outros campos opcionais aqui, caso existam e permitam NULL
+          }
+        ]);
+
+      if (insertError) {
+        Alert.alert('Erro', insertError.message);
+        // Opcional: deletar usuário do Auth para evitar registros órfãos
+        // await supabase.auth.admin.deleteUser(authData.user.id);
+        return;
+      }
+
+      Alert.alert('Sucesso', 'Conta criada com sucesso!');
+      navigation.navigate('Login');
+    } catch (error) {
+      Alert.alert('Erro inesperado', error.message);
+    }
   };
 
   return (
@@ -28,6 +66,17 @@ export default function Register({ navigation }) {
           style={styles.input}
           value={name}
           onChangeText={setName}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Icon name="card-outline" size={22} color="#B91C1C" style={styles.icon} />
+        <TextInput
+          placeholder="CPF"
+          style={styles.input}
+          keyboardType="numeric"
+          value={cpf}
+          onChangeText={setCpf}
         />
       </View>
 

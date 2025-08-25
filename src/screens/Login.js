@@ -15,17 +15,35 @@ export default function Login({ navigation }) {
       return;
     }
 
-    const { data, error } = await supabase
-      .from('estudantes')
-      .select('*')
-      .eq('id', cpf)
-      .eq('senha', senha)
-      .single();
+    try {
+      // Busca o email na tabela 'estudantes' usando o CPF como identificador
+      const { data, error } = await supabase
+        .from('estudantes')
+        .select('email')
+        .eq('cpf', cpf) // Usa a coluna 'cpf' (que agora é sua PK) para buscar o estudante
+        .single();
 
-    if (error || !data) {
-      Alert.alert('Erro', 'CPF ou senha inválidos');
-    } else {
-      navigation.replace('HomeTabs');
+      if (error || !data) {
+        Alert.alert('Erro', 'CPF ou senha inválidos.');
+        return;
+      }
+
+      const { email } = data;
+
+      // Tenta autenticar no Supabase Auth com o email encontrado e a senha
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password: senha,
+      });
+
+      if (authError) {
+        Alert.alert('Erro de Autenticação', authError.message);
+      } else {
+        navigation.replace('HomeTabs');
+      }
+    } catch (err) {
+      console.error('Erro inesperado durante o login:', err);
+      Alert.alert('Erro', 'Ocorreu um erro inesperado.');
     }
   };
 
@@ -38,7 +56,7 @@ export default function Login({ navigation }) {
         </TouchableOpacity>
 
         <Image
-          source={require('../../assets/logo.png')} // ajuste o caminho se necessário
+          source={require('../../assets/logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -70,9 +88,12 @@ export default function Login({ navigation }) {
 
         <View style={styles.registerContainer}>
           <Text>Não possui uma conta?</Text>
-          <Text style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
-            {' '}Criar conta
-          </Text>
+          {/* CORREÇÃO AQUI: Removido o espaço em branco (' ') fora do componente <Text> */}
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.registerLink}>
+              Criar conta
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -80,8 +101,8 @@ export default function Login({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
+  container: {
+    flex: 1,
     backgroundColor: '#1E3A8A',
   },
 
@@ -111,9 +132,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
 
-  title: { 
-    fontSize: 26, 
-    fontWeight: 'bold', 
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
     color: '#1E3A8A',
     marginBottom: 20,
   },
