@@ -7,54 +7,51 @@ import * as ImagePicker from 'expo-image-picker';
 export default function Credencial() {
   const [dados, setDados] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [userCpf, setUserCpf] = useState(null); // Agora vamos usar o CPF como identificador
+  const [userCpf, setUserCpf] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const carregarUsuario = async () => {
-      console.log('--- Iniciando carregamento do usuário ---');
-      const { data } = await supabase.auth.getSession();
-      console.log('Sessão Supabase:', data);
-
-      if (data.session?.user) {
-        // O ID do Supabase Auth não é a PK da sua tabela, mas o email está disponível.
-        // Usaremos o email para encontrar o CPF na tabela 'estudantes'.
-        const userEmail = data.session.user.email;
-        console.log('Email do usuário autenticado (Supabase Auth):', userEmail);
-
-        // Busca o CPF do estudante na tabela 'estudantes' usando o email
-        const { data: estudanteData, error: estudanteError } = await supabase
-          .from('estudantes')
-          .select('cpf')
-          .eq('email', userEmail) // Busca pelo email do usuário logado
-          .single();
-
-        if (estudanteError || !estudanteData) {
-          console.error("Erro ao buscar CPF do estudante:", estudanteError);
-          // Alerta para o usuário caso o CPF não seja encontrado para o email logado
-          Alert.alert('Erro', 'Não foi possível encontrar o CPF do usuário logado na base de dados.');
-          setLoading(false);
+      try {
+        setLoading(true);
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.error('Erro ao obter a sessão:', sessionError);
+          Alert.alert('Erro', 'Não foi possível carregar a sessão do usuário.');
           return;
         }
 
-        const cpfUsuario = estudanteData.cpf;
-        console.log('CPF do usuário:', cpfUsuario);
-        setUserCpf(cpfUsuario); // Armazena o CPF no estado
-        buscarDados(cpfUsuario); // Busca os dados do estudante usando o CPF
-      } else {
-        console.log('Nenhum usuário logado. Configurando loading para false.');
+        if (session?.user) {
+          const userEmail = session.user.email;
+          const { data: estudanteData, error: estudanteError } = await supabase
+            .from('estudantes')
+            .select('cpf')
+            .eq('email', userEmail)
+            .single();
+
+          if (estudanteError || !estudanteData) {
+            console.error("Erro ao buscar CPF do estudante:", estudanteError);
+            Alert.alert('Erro', 'Não foi possível encontrar o CPF do usuário logado na base de dados.');
+            return;
+          }
+
+          const cpfUsuario = estudanteData.cpf;
+          setUserCpf(cpfUsuario);
+          await buscarDados(cpfUsuario);
+        }
+      } catch (err) {
+        console.error('Erro no useEffect:', err);
+        Alert.alert('Erro', 'Ocorreu um erro inesperado ao carregar os dados.');
+      } finally {
         setLoading(false);
       }
     };
 
     carregarUsuario();
 
-    // Listener para mudanças no estado de autenticação
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         const userEmail = session.user.email;
-        console.log('Estado de autenticação mudou. Email:', userEmail);
-
         const { data: estudanteData, error: estudanteError } = await supabase
           .from('estudantes')
           .select('cpf')
@@ -64,15 +61,12 @@ export default function Credencial() {
         if (estudanteError || !estudanteData) {
           console.error("Erro ao buscar CPF do estudante no onAuthStateChange:", estudanteError);
           Alert.alert('Erro', 'Não foi possível encontrar o CPF do usuário logado na base de dados após mudança de estado.');
-          setLoading(false);
           return;
         }
         const cpfUsuario = estudanteData.cpf;
-        console.log('CPF do usuário no onAuthStateChange:', cpfUsuario);
         setUserCpf(cpfUsuario);
-        buscarDados(cpfUsuario);
+        await buscarDados(cpfUsuario);
       } else {
-        console.log('Estado de autenticação mudou. Nenhum usuário logado.');
         setUserCpf(null);
         setDados(null);
         setLoading(false);
@@ -80,34 +74,34 @@ export default function Credencial() {
     });
 
     return () => listener.subscription.unsubscribe();
-  }, []); // O useEffect roda uma vez na montagem
+  }, []);
 
   async function buscarDados(cpf) {
     setLoading(true);
-    console.log('Buscando dados para o CPF:', cpf);
+    try {
+      const { data, error } = await supabase
+        .from('estudantes')
+        .select('nome, sobrenome, instituicao, curso, validade, foto_url')
+        .eq('cpf', cpf)
+        .single();
 
-    const { data, error } = await supabase
-      .from('estudantes')
-      .select('nome, sobrenome, instituicao, curso, validade, foto_url')
-      .eq('cpf', cpf) // Agora busca pela coluna 'cpf', que é a PK na sua tabela
-      .single();
-
-    if (error) {
-      console.error("Erro ao buscar dados:", error);
-      console.log('Detalhes do erro:', error.message);
-      setDados(null); // Garante que a tela de "Nenhum dado" apareça
-      Alert.alert('Erro', 'Ocorreu um erro ao carregar os dados do estudante.');
-    } else {
-      console.log('Dados encontrados:', data);
+      if (error) {
+        throw error;
+      }
       setDados(data);
+    } catch (err) {
+      console.error("Erro ao buscar dados:", err);
+      setDados(null);
+      Alert.alert('Erro', 'Ocorreu um erro ao carregar os dados do estudante.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   async function atualizarFoto() {
     if (!userCpf) {
-        Alert.alert('Erro', 'CPF do usuário não encontrado para atualizar a foto.');
-        return;
+      Alert.alert('Erro', 'CPF do usuário não encontrado para atualizar a foto.');
+      return;
     }
 
     try {
@@ -131,8 +125,7 @@ export default function Credencial() {
       const response = await fetch(asset.uri);
       const blob = await response.blob();
 
-      // Usa o CPF para nomear o arquivo da foto
-      const filePath = `fotos/${userCpf}-${Date.now()}.jpg`; 
+      const filePath = `fotos/${userCpf}-${Date.now()}.jpg`;
 
       const { error: uploadError } = await supabase.storage
         .from('fotos-estudantes')
@@ -148,17 +141,16 @@ export default function Credencial() {
         return;
       }
 
-      const { data: publicUrlData } = supabase.storage // Renomeado para evitar conflito com 'data' acima
+      const { data: publicUrlData } = supabase.storage
         .from('fotos-estudantes')
         .getPublicUrl(filePath);
 
       const fotoUrl = publicUrlData.publicUrl;
 
-      // Atualiza o registro do estudante na tabela 'estudantes' usando o CPF
       const { error: updateError } = await supabase
         .from('estudantes')
         .update({ foto_url: fotoUrl })
-        .eq('cpf', userCpf); // Atualiza pela coluna 'cpf'
+        .eq('cpf', userCpf);
 
       if (updateError) {
         console.error('Erro ao atualizar no banco:', updateError);
@@ -197,8 +189,6 @@ export default function Credencial() {
     return (
       <View style={styles.container}>
         <Text style={styles.text}>Nenhum dado encontrado. Por favor, tente novamente mais tarde.</Text>
-        {/* Você pode adicionar um botão aqui para tentar recarregar os dados */}
-        {/* <Button title="Recarregar" onPress={carregarUsuario} /> */}
       </View>
     );
   }
@@ -210,13 +200,11 @@ export default function Credencial() {
       ) : (
         <View style={styles.fotoPlaceholder} />
       )}
-
       <Button
         title={uploading ? "Atualizando..." : "Atualizar Foto"}
         onPress={atualizarFoto}
         disabled={uploading}
       />
-
       <Text style={styles.text}>Nome: {dados.nome} {dados.sobrenome}</Text>
       <Text style={styles.text}>Instituição: {dados.instituicao}</Text>
       <Text style={styles.text}>Curso: {dados.curso}</Text>
@@ -224,7 +212,7 @@ export default function Credencial() {
 
       <View style={{ marginTop: 20 }}>
         <Text style={styles.text}>QR Code:</Text>
-        {userCpf && <QRCode value={userCpf} size={120} />} {/* QR Code com o CPF */}
+        {userCpf && <QRCode value={userCpf} size={120} />}
       </View>
     </View>
   );
