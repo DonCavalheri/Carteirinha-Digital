@@ -1,51 +1,82 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { supabase } from '../services/supabase';
 
-export default function Ingressos() {
+export default function Ingressos({ navigation }) {
   const [ingressos, setIngressos] = useState([]);
-
-  const buscarIngressos = async () => {
-    const { data: user } = await supabase.auth.getUser();
-    if (user?.user) {
-      const { data, error } = await supabase
-        .from('ingressos')
-        .select('*, eventos(nome, local)')
-        .eq('usuario_id', user.user.id);
-
-      if (!error) setIngressos(data);
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     buscarIngressos();
   }, []);
 
+  const buscarIngressos = async () => {
+    const { data, error } = await supabase
+      .from('ingressos')
+      .select(`
+        id,
+        tipo,
+        status,
+        eventos:evento_id (
+          nome,
+          local,
+          data,
+          imagem
+        )
+      `);
+
+    if (!error) setIngressos(data || []);
+    setLoading(false);
+  };
+
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Text style={styles.eventTitle}>{item.eventos.nome}</Text>
-      <Text style={styles.eventText}>{item.eventos.local} - {item.tipo} ({item.status})</Text>
+      {item.eventos?.imagem && (
+        <Image source={{ uri: item.eventos.imagem }} style={styles.img} />
+      )}
+      <Text style={styles.title}>{item.eventos?.nome}</Text>
+      <Text>{item.eventos?.local}</Text>
+      <Text>{item.eventos?.data}</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate('DetalhesIngresso', { ingresso: item })}
+      >
+        <Text style={styles.buttonText}>Exibir</Text>
+      </TouchableOpacity>
     </View>
   );
 
+  if (loading) return <ActivityIndicator size="large" color="#1E3A8A" style={{ flex: 1 }} />;
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Seus Ingressos</Text>
       <FlatList
         data={ingressos}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
-        ListEmptyComponent={<Text style={styles.text}>Nenhum ingresso encontrado</Text>}
+        contentContainerStyle={{ padding: 15 }}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1E3A8A', padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', color: 'white', marginBottom: 20, textAlign: 'center' },
-  card: { backgroundColor: '#fff', padding: 15, borderRadius: 8, marginBottom: 10 },
-  eventTitle: { fontSize: 18, fontWeight: 'bold' },
-  eventText: { fontSize: 14 },
-  text: { color: 'white', textAlign: 'center' },
+  container: { flex: 1, backgroundColor: '#FFF' },
+  card: {
+    backgroundColor: '#F1F5F9',
+    padding: 15,
+    marginBottom: 15,
+    borderRadius: 10,
+    elevation: 2,
+  },
+  img: { width: '100%', height: 150, borderRadius: 10, marginBottom: 10 },
+  title: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },
+  button: {
+    marginTop: 10,
+    backgroundColor: '#1E3A8A',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: { color: '#FFF', fontWeight: 'bold' },
 });

@@ -6,9 +6,14 @@ export default function SplashScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Image source={require('../../assets/logo.png')} style={{ width: 120, height: 120, marginBottom: 20 }} />
-      <Text style={styles.title}>ESTUDA ETEC</Text>
-      <Text style={styles.subtitle}>Carteirinha de Estudante</Text>
+      <Text style={styles.title}>C E D </Text>
+      <Text style={styles.subtitle}>Carteirinha de Estudante Digital</Text>
       <CustomButton title="Acessar" onPress={() => navigation.navigate('Login')} />
+      <Text>
+      {'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}
+      </Text>
+      <Image source={require('../../assets/banner.png')} style={{ width: 330, height: 90, marginBottom: 20 }} />
+      
     </View>
   );
 }
@@ -16,18 +21,18 @@ export default function SplashScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1E3A8A',
+    backgroundColor: '#fcfcfcff',
     justifyContent: 'center',
     alignItems: 'center'
   },
   title: {
     fontSize: 28,
-    color: 'white',
+    color: 'black',
     fontWeight: 'bold'
   },
   subtitle: {
     fontSize: 16,
-    color: 'white',
+    color: 'black',
     marginBottom: 20
   }
 });
