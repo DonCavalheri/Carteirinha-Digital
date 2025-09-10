@@ -3,8 +3,8 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import TabNavigator from './TabNavigator';
 import Configuracoes from '../screens/Configuracoes';
 import Notificacoes from '../screens/Notificacoes';
-import Frequencia from '../screens/Frequencia';
-import Calendario from '../screens/Calendario';
+import FrequenciaScreen from '../screens/FrequenciaScreen';
+import CalendarioScreen from '../screens/CalendarioScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -21,8 +21,8 @@ export default function DrawerNavigator() {
       {/* Tabs ficam como a primeira tela do drawer */}
       <Drawer.Screen name="Principal" component={TabNavigator} />
       <Drawer.Screen name="Notificações" component={Notificacoes} />
-      <Drawer.Screen name="Frequência" component={Frequencia} />
-      <Drawer.Screen name="Calendário" component={Calendario} />
+      <Drawer.Screen name="Frequência" component={FrequenciaScreen} />
+      <Drawer.Screen name="Calendário" component={CalendarioScreen} />
       <Drawer.Screen name="Configurações" component={Configuracoes} />
     </Drawer.Navigator>
   );
