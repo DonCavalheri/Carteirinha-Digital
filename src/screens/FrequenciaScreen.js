@@ -3,11 +3,12 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { supabase } from "../services/supabase";
 
 export default function FrequenciaScreen({ route }) {
-  const cpf = route?.params?.cpf; // parâmetro recebido da navegação
+  const cpf = route?.params?.cpf;
   const [dados, setDados] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("CPF recebido na tela de Frequência:", cpf);
     if (cpf) {
       buscarFrequencia();
     } else {
@@ -51,7 +52,6 @@ export default function FrequenciaScreen({ route }) {
     let faltas = freq.filter(f => f.status === "falta").length;
     let presencas = freq.filter(f => f.status === "presente").length;
 
-    // Calcular por disciplina
     let porDisciplina = {};
     freq.forEach(f => {
       const disc = f.aulas?.disciplinas?.nome ?? "Disciplina Desconhecida";
@@ -73,18 +73,9 @@ export default function FrequenciaScreen({ route }) {
     setLoading(false);
   }
 
-  // --- Renderizações ---
-  if (loading) {
-    return <Text style={styles.msg}>Carregando...</Text>;
-  }
-
-  if (!cpf) {
-    return <Text style={styles.msg}>⚠ Nenhum CPF recebido na navegação.</Text>;
-  }
-
-  if (dados?.totalAulas === 0) {
-    return <Text style={styles.msg}>📌 Nenhuma frequência registrada ainda.</Text>;
-  }
+  if (loading) return <Text style={styles.msg}>Carregando...</Text>;
+  if (!cpf) return <Text style={styles.msg}>⚠ Nenhum CPF recebido na navegação.</Text>;
+  if (dados?.totalAulas === 0) return <Text style={styles.msg}>📌 Nenhuma frequência registrada ainda.</Text>;
 
   return (
     <ScrollView style={styles.container}>

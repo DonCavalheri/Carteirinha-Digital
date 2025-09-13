@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, Image, TouchableOpacity } from 'react-native';
-import CustomButton from '../components/CustomButton';
-import CustomInput from '../components/CustomInput';
-import { supabase } from '../services/supabase';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { supabase } from '../services/supabase';
 
 export default function Login({ navigation }) {
   const [cpf, setCpf] = useState('');
@@ -11,16 +9,15 @@ export default function Login({ navigation }) {
 
   const handleLogin = async () => {
     if (!cpf || !senha) {
-      Alert.alert('Erro', 'Preencha todos os campos');
+      Alert.alert('Erro', 'Preencha todos os campos!');
       return;
     }
 
     try {
-      // Busca o email na tabela 'estudantes' usando o CPF como identificador
       const { data, error } = await supabase
         .from('estudantes')
         .select('email')
-        .eq('cpf', cpf) // Usa a coluna 'cpf' (que agora é sua PK) para buscar o estudante
+        .eq('cpf', cpf)
         .single();
 
       if (error || !data) {
@@ -29,8 +26,6 @@ export default function Login({ navigation }) {
       }
 
       const { email } = data;
-
-      // Tenta autenticar no Supabase Auth com o email encontrado e a senha
       const { error: authError } = await supabase.auth.signInWithPassword({
         email,
         password: senha,
@@ -38,9 +33,10 @@ export default function Login({ navigation }) {
 
       if (authError) {
         Alert.alert('Erro de Autenticação', authError.message);
-      } else {
-        navigation.replace('HomeTabs');
+        return;
       }
+
+      navigation.replace('HomeTabs', { cpf });
     } catch (err) {
       console.error('Erro inesperado durante o login:', err);
       Alert.alert('Erro', 'Ocorreu um erro inesperado.');
@@ -64,35 +60,46 @@ export default function Login({ navigation }) {
 
       {/* Card branco arredondado */}
       <View style={styles.bottomContainer}>
-        <Text style={styles.title}>Login</Text>
+        <Text style={styles.title}>Bem-vindo</Text>
 
-        <CustomInput
-          placeholder="CPF"
-          value={cpf}
-          onChangeText={setCpf}
-          keyboardType="numeric"
-        />
+        {/* Campo CPF */}
+        <View style={styles.inputContainer}>
+          <Icon name="card-outline" size={22} color="#1E40AF" style={styles.icon} />
+          <TextInput
+            placeholder="CPF"
+            style={styles.input}
+            keyboardType="numeric"
+            value={cpf}
+            onChangeText={setCpf}
+          />
+        </View>
 
-        <CustomInput
-          placeholder="Senha"
-          value={senha}
-          onChangeText={setSenha}
-          secureTextEntry
-        />
+        {/* Campo Senha */}
+        <View style={styles.inputContainer}>
+          <Icon name="lock-closed-outline" size={22} color="#1E40AF" style={styles.icon} />
+          <TextInput
+            placeholder="Senha"
+            style={styles.input}
+            secureTextEntry
+            value={senha}
+            onChangeText={setSenha}
+          />
+        </View>
 
         <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
           <Text style={styles.forgotText}>Esqueceu sua senha?</Text>
         </TouchableOpacity>
 
-        <CustomButton title="Acessar" onPress={handleLogin} customStyle={styles.loginButton} />
+        {/* Botão de Login */}
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Acessar</Text>
+        </TouchableOpacity>
 
+        {/* Link Criar Conta */}
         <View style={styles.registerContainer}>
           <Text>Não possui uma conta?</Text>
-          {/* CORREÇÃO AQUI: Removido o espaço em branco (' ') fora do componente <Text> */}
           <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.registerLink}>
-              Criar conta
-            </Text>
+            <Text style={styles.registerLink}> Criar conta</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -139,6 +146,26 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    width: '100%',
+    height: 50,
+  },
+  icon: {
+    marginRight: 8,
+  },
+  input: {
+    flex: 1,
+    height: '100%',
+  },
+
   forgotText: {
     alignSelf: 'flex-end',
     marginVertical: 8,
@@ -146,9 +173,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  loginButton: {
-    marginTop: 15,
+  button: {
+    backgroundColor: '#1E40AF',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 10,
     width: '100%',
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 
   registerContainer: {

@@ -5,10 +5,14 @@ import Configuracoes from '../screens/Configuracoes';
 import Notificacoes from '../screens/Notificacoes';
 import FrequenciaScreen from '../screens/FrequenciaScreen';
 import CalendarioScreen from '../screens/CalendarioScreen';
+import { useRoute } from '@react-navigation/native';
 
 const Drawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
+  const route = useRoute();
+  const cpf = route.params?.cpf; // <-- pega o cpf vindo do login
+
   return (
     <Drawer.Navigator
       screenOptions={{
@@ -18,12 +22,12 @@ export default function DrawerNavigator() {
         drawerInactiveTintColor: '#1E3A8A',
       }}
     >
-      {/* Tabs ficam como a primeira tela do drawer */}
-      <Drawer.Screen name="Principal" component={TabNavigator} />
-      <Drawer.Screen name="Notificações" component={Notificacoes} />
-      <Drawer.Screen name="Frequência" component={FrequenciaScreen} />
-      <Drawer.Screen name="Calendário" component={CalendarioScreen} />
-      <Drawer.Screen name="Configurações" component={Configuracoes} />
+      {/* Tabs recebem o cpf também */}
+      <Drawer.Screen name="Principal" component={TabNavigator} initialParams={{ cpf }} />
+      <Drawer.Screen name="Notificações" component={Notificacoes} initialParams={{ cpf }} />
+      <Drawer.Screen name="Frequência" component={FrequenciaScreen} initialParams={{ cpf }} />
+      <Drawer.Screen name="Calendário" component={CalendarioScreen} initialParams={{ cpf }} />
+      <Drawer.Screen name="Configurações" component={Configuracoes} initialParams={{ cpf }} />
     </Drawer.Navigator>
   );
 }
