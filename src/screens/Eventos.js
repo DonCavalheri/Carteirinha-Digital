@@ -34,7 +34,7 @@ export default function Eventos() {
         <Text style={styles.local}>{item.local}</Text>
 
         <TouchableOpacity style={styles.botao}>
-          <Text style={styles.botaoTexto}>Ver Ingressos</Text>
+          <Text style={styles.botaoTexto}>Obter Ingressos</Text>
         </TouchableOpacity>
       </View>
     </View>

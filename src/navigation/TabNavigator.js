@@ -6,7 +6,7 @@ import Eventos from '../screens/Eventos';
 import Ingressos from '../screens/Ingressos';
 import Dados from '../screens/Dados';
 import { Ionicons } from '@expo/vector-icons';
-
+import IngressosStack from './IngressosStack';
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
@@ -28,7 +28,7 @@ export default function TabNavigator() {
       })}
     >
       <Tab.Screen name="Início" component={Home} />
-      <Tab.Screen name="Ingressos" component={Ingressos} />
+      <Tab.Screen name="Ingressos" component={IngressosStack} />
       <Tab.Screen name="Credencial" component={Credencial} />
       <Tab.Screen name="Eventos" component={Eventos} />
       <Tab.Screen name="Dados" component={Dados} />

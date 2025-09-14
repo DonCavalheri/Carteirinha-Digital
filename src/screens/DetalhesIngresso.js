@@ -5,14 +5,27 @@ import QRCode from 'react-native-qrcode-svg';
 export default function DetalhesIngresso({ route }) {
   const { ingresso } = route.params;
 
+  // Função para formatar a data
+  const formatarData = (dataISO) => {
+    if (!dataISO) return '';
+    const data = new Date(dataISO);
+    return data.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   return (
     <View style={styles.container}>
-      {ingresso.eventos?.imagem && (
-        <Image source={{ uri: ingresso.eventos.imagem }} style={styles.img} />
+      {ingresso.evento?.imagem && (
+        <Image source={{ uri: ingresso.evento.imagem }} style={styles.img} />
       )}
-      <Text style={styles.title}>{ingresso.eventos?.nome}</Text>
-      <Text style={styles.info}>{ingresso.eventos?.local}</Text>
-      <Text style={styles.info}>{ingresso.eventos?.data}</Text>
+      <Text style={styles.title}>{ingresso.evento?.nome}</Text>
+      <Text style={styles.info}>{ingresso.evento?.local}</Text>
+      <Text style={styles.info}>{formatarData(ingresso.evento?.data)}</Text>
       <Text style={styles.info}>Tipo: {ingresso.tipo}</Text>
       <Text style={styles.info}>Status: {ingresso.status}</Text>
 
@@ -20,7 +33,7 @@ export default function DetalhesIngresso({ route }) {
         <QRCode
           value={JSON.stringify({
             id: ingresso.id,
-            evento: ingresso.eventos?.nome,
+            evento: ingresso.evento?.nome,
             tipo: ingresso.tipo,
             status: ingresso.status,
           })}
