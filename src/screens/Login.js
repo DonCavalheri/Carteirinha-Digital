@@ -14,6 +14,7 @@ export default function Login({ navigation }) {
     }
 
     try {
+      // Busca o e-mail pelo CPF
       const { data, error } = await supabase
         .from('estudantes')
         .select('email')
@@ -26,7 +27,9 @@ export default function Login({ navigation }) {
       }
 
       const { email } = data;
-      const { error: authError } = await supabase.auth.signInWithPassword({
+
+      // Faz login com Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password: senha,
       });
@@ -35,18 +38,20 @@ export default function Login({ navigation }) {
         Alert.alert('Erro de Autenticação', authError.message);
         return;
       }
-      
+
+      // Verifica se o e-mail foi confirmado
       if (authData?.user?.email_confirmed_at === null) {
         Alert.alert(
           'Atenção',
           'Seu e-mail ainda não foi verificado. Por favor, acesse sua caixa de entrada para confirmar seu cadastro.'
         );
-        // Opcional: Deslogar o usuário automaticamente para evitar que ele fique logado com um e-mail não verificado
-        await supabase.auth.signOut(); 
+        await supabase.auth.signOut();
         return;
       }
 
+      // Redireciona para Home se tudo certo
       navigation.replace('HomeTabs', { cpf });
+
     } catch (err) {
       console.error('Erro inesperado durante o login:', err);
       Alert.alert('Erro', 'Ocorreu um erro inesperado.');
