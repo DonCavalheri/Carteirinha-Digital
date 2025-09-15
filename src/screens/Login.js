@@ -35,6 +35,16 @@ export default function Login({ navigation }) {
         Alert.alert('Erro de Autenticação', authError.message);
         return;
       }
+      
+      if (authData?.user?.email_confirmed_at === null) {
+        Alert.alert(
+          'Atenção',
+          'Seu e-mail ainda não foi verificado. Por favor, acesse sua caixa de entrada para confirmar seu cadastro.'
+        );
+        // Opcional: Deslogar o usuário automaticamente para evitar que ele fique logado com um e-mail não verificado
+        await supabase.auth.signOut(); 
+        return;
+      }
 
       navigation.replace('HomeTabs', { cpf });
     } catch (err) {
