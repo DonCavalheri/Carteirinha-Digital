@@ -1,53 +1,52 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import * as Linking from 'expo-linking';
-import StackNavigator from './src/navigation/StackNavigator.js';
-import { supabase } from './src/services/supabase'; // Certifique-se de que o caminho está correto
+import { supabase } from './src/services/supabase';
+import StackNavigator from './src/navigation/StackNavigator';
+import { ActivityIndicator, View } from 'react-native';
 
-// Define o prefixo do seu deep link
-// Expo vai usar o "scheme" do app.json para construir o prefixo
 const prefix = Linking.createURL('/');
 
-// Objeto de configuração para o deep linking
 const linking = {
-  prefixes: [prefix], // Expo já cuida de adicionar 'myapp://' automaticamente
+  prefixes: [prefix],
   config: {
     screens: {
-      Login: 'login', // A tela para onde o usuário será redirecionado
-      // Adicione outras telas que podem ser acessadas via deep link, se necessário
+      Login: 'login',
+      ForgotPassword: 'forgot',
+      ResetPassword: 'reset-password',
+      HomeTabs: 'home',
     },
   },
 };
 
 export default function App() {
-  // Use um useEffect para lidar com o deep linking e a sessão do Supabase
+  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState(null);
+
   useEffect(() => {
-    // Escuta eventos de URL
-    const handleUrl = ({ url }) => {
-      const { path, queryParams } = Linking.parse(url);
-      
-      // Verifica se a URL é para confirmação de e-mail
-      if (path === 'confirmation' && queryParams?.token) {
-        // O Supabase lida com a troca de token automaticamente
-        // O app deve apenas carregar a tela de login
-        // ou a tela que lida com a autenticação
-        // Você pode adicionar uma lógica aqui para mostrar uma mensagem de sucesso
-        // ou redirecionar o usuário para a tela de login
-      }
-    };
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
 
-    // Adiciona o listener para as URLs de entrada
-    Linking.addEventListener('url', handleUrl);
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
 
-    // Limpa o listener quando o componente é desmontado
-    return () => {
-      Linking.removeEventListener('url', handleUrl);
-    };
+    return () => listener.subscription.unsubscribe();
   }, []);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#1E3A8A" />
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer linking={linking}>
-      <StackNavigator />
+      <StackNavigator session={session} />
     </NavigationContainer>
   );
 }
