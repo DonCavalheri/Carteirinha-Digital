@@ -22,11 +22,10 @@ export default function Credencial() {
         }
 
         if (session?.user) {
-          const userEmail = session.user.email;
           const { data: estudanteData, error: estudanteError } = await supabase
             .from('estudantes')
-            .select('cpf')
-            .eq('email', userEmail)
+            .select('cpf, auth_uid')
+            .eq('auth_uid', session.user.id)
             .single();
 
           if (estudanteError || !estudanteData) {
@@ -51,11 +50,10 @@ export default function Credencial() {
 
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
-        const userEmail = session.user.email;
         const { data: estudanteData, error: estudanteError } = await supabase
           .from('estudantes')
-          .select('cpf')
-          .eq('email', userEmail)
+          .select('cpf, auth_uid')
+          .eq('auth_uid', session.user.id)
           .single();
 
         if (estudanteError || !estudanteData) {

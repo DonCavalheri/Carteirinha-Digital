@@ -15,32 +15,17 @@ export default function Dados() {
         setLoading(false);
         return;
       }
-      const userEmail = session.user.email;
 
       const { data: estudanteData, error: estudanteError } = await supabase
         .from('estudantes')
-        .select('cpf')
-        .eq('email', userEmail)
-        .single();
-
-      if (estudanteError || !estudanteData) {
-        Alert.alert('Erro', 'Não foi possível encontrar o CPF do usuário na base de dados.');
-        setLoading(false);
-        return;
-      }
-
-      const cpfUsuario = estudanteData.cpf;
-
-      const { data, error } = await supabase
-        .from('estudantes')
         .select('cpf, nome, sobrenome, instituicao, curso, data_nascimento, genero')
-        .eq('cpf', cpfUsuario)
+        .eq('auth_uid', session.user.id)
         .single();
 
-      if (error) {
-        throw error;
+      if (estudanteError) {
+        throw estudanteError;
       }
-      setDados(data);
+      setDados(estudanteData);
 
     } catch (err) {
       console.error("Erro ao buscar dados:", err);

@@ -12,7 +12,7 @@ const linking = {
   config: {
     screens: {
       Login: 'login',
-      ForgotPassword: 'forgot',
+      ForgotPassword: 'forgot-password',
       ResetPassword: 'reset-password',
       HomeTabs: 'home',
     },
