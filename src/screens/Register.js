@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ScrollView, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { supabase } from '../services/supabase';
 
 export default function Register({ navigation }) {
-    const [nome, setNome] = useState('');
+    const [nome, setNome] = useState(''); // Nome
+    const [sobrenome, setSobrenome] = useState(''); // Sobrenome
     const [cpf, setCpf] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [repetirSenha, setRepetirSenha] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState(false); // Estado para o "olhinho"
+    const [loading, setLoading] = useState(false);
 
     const handleRegister = async () => {
-        if (!nome || !cpf || !email || !senha || !repetirSenha) {
+        if (!nome || !sobrenome || !cpf || !email || !senha || !repetirSenha) {
             Alert.alert('Erro', 'Preencha todos os campos!');
             return;
         }
@@ -20,28 +22,58 @@ export default function Register({ navigation }) {
             Alert.alert('Erro', 'As senhas não coincidem!');
             return;
         }
+        
+        setLoading(true);
 
         try {
-            const { error } = await supabase
-                .from('estudantes')
-                .insert([{ nome, cpf, email, senha }]);
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: email,
+                password: senha,
+                options: {
+                    data: { nome_completo: `${nome} ${sobrenome}` }, 
+                }
+            });
 
-            if (error) {
-                Alert.alert('Erro', error.message);
+            if (authError) {
+                Alert.alert('Erro no Cadastro', authError.message);
+                setLoading(false);
+                return;
+            }
+            
+            const userId = authData.user.id;
+            const { error: profileError } = await supabase
+                .from('estudantes')
+                .insert([
+                    { 
+                        nome: nome, 
+                        sobrenome: sobrenome, 
+                        cpf: cpf, 
+                        email: email, 
+                        auth_uid: userId 
+                    }
+                ]);
+
+            if (profileError) {
+                Alert.alert('Erro ao Salvar Perfil', 'Conta criada, mas houve um erro ao salvar os dados. Tente fazer login.');
+                setLoading(false);
                 return;
             }
 
-            Alert.alert('Sucesso', 'Conta criada! Agora faça login.');
+            Alert.alert('Sucesso', 'Conta criada! Você já pode fazer login.');
             navigation.navigate('Login');
+
         } catch (error) {
-            Alert.alert('Erro inesperado', error.message);
+            console.error(error);
+            Alert.alert('Erro inesperado', 'Ocorreu um erro durante o cadastro. Tente novamente.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.topContainer}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} disabled={loading}>
                     <Icon name="arrow-back" size={28} color="#FFF" />
                 </TouchableOpacity>
                 <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
@@ -52,30 +84,42 @@ export default function Register({ navigation }) {
                     <Text style={styles.title}>Crie sua conta</Text>
 
                     <View style={styles.inputContainer}>
-                        <TextInput placeholder="Digite seu CPF" style={styles.input} keyboardType="numeric" value={cpf} onChangeText={setCpf} placeholderTextColor="#666" />
+                        <TextInput placeholder="Digite seu CPF" style={styles.input} keyboardType="numeric" value={cpf} onChangeText={setCpf} placeholderTextColor="#666" editable={!loading} />
+                    </View>
+                    
+                    {/* Nome */}
+                    <View style={styles.inputContainer}>
+                        <TextInput placeholder="Nome" style={styles.input} value={nome} onChangeText={setNome} placeholderTextColor="#666" editable={!loading} />
+                    </View>
+
+                    {/* Sobrenome */}
+                    <View style={styles.inputContainer}>
+                        <TextInput placeholder="Sobrenome" style={styles.input} value={sobrenome} onChangeText={setSobrenome} placeholderTextColor="#666" editable={!loading} />
                     </View>
 
                     <View style={styles.inputContainer}>
-                        <TextInput placeholder="Nome completo" style={styles.input} value={nome} onChangeText={setNome} placeholderTextColor="#666" />
+                        <TextInput placeholder="Email" style={styles.input} keyboardType="email-address" value={email} onChangeText={setEmail} placeholderTextColor="#666" editable={!loading} />
                     </View>
 
+                    {/* Senha com "olhinho" */}
                     <View style={styles.inputContainer}>
-                        <TextInput placeholder="Email" style={styles.input} keyboardType="email-address" value={email} onChangeText={setEmail} placeholderTextColor="#666" />
-                    </View>
-
-                    <View style={styles.inputContainer}>
-                        <TextInput placeholder="Senha" style={styles.input} secureTextEntry={!showPassword} value={senha} onChangeText={setSenha} placeholderTextColor="#666" />
-                        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                        <TextInput placeholder="Senha" style={styles.input} secureTextEntry={!showPassword} value={senha} onChangeText={setSenha} placeholderTextColor="#666" editable={!loading} />
+                        <TouchableOpacity onPress={() => setShowPassword(!showPassword)} disabled={loading}>
                             <Icon name={showPassword ? "eye-outline" : "eye-off-outline"} size={22} color="#999" />
                         </TouchableOpacity>
                     </View>
 
+                    {/* Repetir Senha */}
                     <View style={styles.inputContainer}>
-                        <TextInput placeholder="Repetir senha" style={styles.input} secureTextEntry={!showPassword} value={repetirSenha} onChangeText={setRepetirSenha} placeholderTextColor="#666" />
+                        <TextInput placeholder="Repetir senha" style={styles.input} secureTextEntry={!showPassword} value={repetirSenha} onChangeText={setRepetirSenha} placeholderTextColor="#666" editable={!loading} />
                     </View>
 
-                    <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                        <Text style={styles.buttonText}>Criar conta</Text>
+                    <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
+                        {loading ? (
+                            <ActivityIndicator color="#FFF" />
+                        ) : (
+                            <Text style={styles.buttonText}>Criar conta</Text>
+                        )}
                     </TouchableOpacity>
                 </ScrollView>
             </View>

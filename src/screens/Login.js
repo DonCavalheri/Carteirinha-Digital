@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { supabase } from '../services/supabase';
 
 export default function Login({ navigation }) {
     const [cpf, setCpf] = useState('');
     const [senha, setSenha] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState(false); // Estado para o "olhinho"
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async () => {
         if (!cpf || !senha) {
@@ -14,28 +15,44 @@ export default function Login({ navigation }) {
             return;
         }
 
+        setLoading(true);
+
         try {
-            // Busca estudante pelo CPF
-            const { data: estudante, error } = await supabase
+            // 1. Mapear CPF para Email
+            const { data: estudante, error: fetchError } = await supabase
                 .from('estudantes')
-                .select('*')
+                .select('email')
                 .eq('cpf', cpf)
                 .single();
 
-            if (error || !estudante) {
-                Alert.alert('Erro', 'CPF não encontrado.');
+            if (fetchError || !estudante) {
+                Alert.alert('Erro de Login', 'CPF ou Senha incorretos. Por favor, verifique os dados.');
+                setLoading(false);
                 return;
             }
 
-            if (estudante.senha !== senha) {
-                Alert.alert('Erro', 'Senha incorreta.');
+            const email = estudante.email;
+
+            // 2. Usar o Supabase Auth para fazer o login com Email e Senha
+            const { error: authError } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: senha,
+            });
+
+            if (authError) {
+                Alert.alert('Erro de Login', 'CPF ou Senha incorretos. Por favor, tente novamente.');
+                setLoading(false);
                 return;
             }
 
-            // Sucesso
+            // 3. Sucesso
             navigation.replace('HomeTabs', { cpf });
+
         } catch (err) {
-            Alert.alert('Erro inesperado', err.message);
+            console.error(err);
+            Alert.alert('Erro inesperado', 'Ocorreu um erro durante o processo de login. Tente novamente.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -58,6 +75,7 @@ export default function Login({ navigation }) {
                         value={cpf} 
                         onChangeText={setCpf} 
                         placeholderTextColor="#999"
+                        editable={!loading}
                     />
                 </View>
 
@@ -67,27 +85,33 @@ export default function Login({ navigation }) {
                     <TextInput 
                         placeholder="Senha" 
                         style={styles.input} 
-                        secureTextEntry={!showPassword} 
+                        secureTextEntry={!showPassword} // Controlado pelo estado
                         value={senha} 
                         onChangeText={setSenha} 
                         placeholderTextColor="#999"
+                        editable={!loading}
                     />
-                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                    {/* Ícone "olhinho" */}
+                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)} disabled={loading}>
                         <Icon name={showPassword ? "eye-outline" : "eye-off-outline"} size={22} color="#999" />
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={styles.forgotPassword}>
+                <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={styles.forgotPassword} disabled={loading}>
                     <Text style={styles.forgotText}>Esqueceu sua senha?</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                    <Text style={styles.buttonText}>Acessar</Text>
+                <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+                    {loading ? (
+                        <ActivityIndicator color="#FFF" />
+                    ) : (
+                        <Text style={styles.buttonText}>Acessar</Text>
+                    )}
                 </TouchableOpacity>
 
                 <View style={styles.footerLinks}>
                     <Text style={styles.linkText}>☐ Lembrar de mim</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Register')} disabled={loading}>
                         <Text style={[styles.linkText, { color: '#B91C1C', fontWeight: 'bold' }]}>Criar conta</Text>
                     </TouchableOpacity>
                 </View>
