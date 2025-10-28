@@ -132,8 +132,6 @@ export default function Credencial() {
           <Text>Sem Foto</Text>
         </View>
       )}
-      
-      {/* O botão "Atualizar Foto" FOI REMOVIDO */}
 
       <Text style={styles.text}>Nome: {dados.nome} {dados.sobrenome}</Text>
       <Text style={styles.text}>Instituição: {dados.instituicao}</Text>
