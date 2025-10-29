@@ -12,8 +12,7 @@ const Drawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
   const route = useRoute();
-  const cpf = route.params?.cpf; // <-- pega o cpf vindo do login
-
+  const cpf = route.params?.cpf; 
   return (
     <Drawer.Navigator
       screenOptions={{
@@ -23,7 +22,6 @@ export default function DrawerNavigator() {
         drawerInactiveTintColor: '#1E3A8A',
       }}
     >
-      {/* Tabs recebem o cpf também */}
       <Drawer.Screen name="Principal" component={TabNavigator} initialParams={{ cpf }} />
       <Drawer.Screen name="Notícias" component={Notificacoes} initialParams={{ cpf }} />
       <Drawer.Screen name="Frequência" component={FrequenciaScreen} initialParams={{ cpf }} />
