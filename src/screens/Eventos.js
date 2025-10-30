@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { supabase } from '../services/supabase';
 import { FontAwesome } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native'; // Importar useFocusEffect
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Eventos({ navigation }) {
     const [eventos, setEventos] = useState([]);
@@ -13,7 +13,6 @@ export default function Eventos({ navigation }) {
         try {
             setLoading(true);
             
-            // 1. Obter a sessão e o ID do usuário
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
                 Alert.alert('Erro', 'Usuário não autenticado.');
@@ -23,7 +22,6 @@ export default function Eventos({ navigation }) {
             const currentUserId = session.user.id;
             setUserId(currentUserId);
 
-            // 2. Buscar todos os eventos
             const { data: eventosData, error: eventosError } = await supabase
                 .from('eventos')
                 .select('*')
@@ -31,7 +29,6 @@ export default function Eventos({ navigation }) {
 
             if (eventosError) throw eventosError;
 
-            // 3. Buscar ingressos obtidos pelo usuário
             const { data: ingressosObtidosData, error: ingressosObtidosError } = await supabase
                 .from('ingressos_obtidos')
                 .select('evento_id')
@@ -39,8 +36,6 @@ export default function Eventos({ navigation }) {
 
             if (ingressosObtidosError) throw ingressosObtidosError;
 
-            // 4. Mapear os eventos para incluir o status do ingresso
-            // Como evento_id é bigint, garantimos que a comparação seja feita corretamente
             const obtidosMap = new Set(ingressosObtidosData.map(i => i.evento_id));
             
             const eventosComStatus = eventosData.map(evento => ({
@@ -57,8 +52,7 @@ export default function Eventos({ navigation }) {
             setLoading(false);
         }
     };
-    
-    // Recarrega a lista sempre que a tela for focada (após adquirir um ingresso)
+
     useFocusEffect(
         React.useCallback(() => {
             fetchData();
@@ -113,7 +107,7 @@ const styles = StyleSheet.create({
     cardTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 5, color: '#333' },
     cardText: { fontSize: 14, color: '#555' },
     button: { padding: 10, borderRadius: 5, marginTop: 10, alignItems: 'center' },
-    buttonObter: { backgroundColor: '#B91C1C' }, // Vermelho para Obter
-    buttonObtido: { backgroundColor: '#1E40AF' }, // Azul para Obtido
+    buttonObter: { backgroundColor: '#B91C1C' },
+    buttonObtido: { backgroundColor: '#1E40AF' },
     buttonText: { color: '#FFF', fontWeight: 'bold' },
 });

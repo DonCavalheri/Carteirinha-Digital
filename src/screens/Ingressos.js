@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { supabase } from '../services/supabase';
 import { FontAwesome } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native'; // Importar useFocusEffect
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Ingressos({ navigation }) {
     const [ingressos, setIngressos] = useState([]);
@@ -12,25 +12,24 @@ export default function Ingressos({ navigation }) {
         try {
             setLoading(true);
             
-            // Query corrigida para usar o alias 'evento' e garantir o JOIN
             const { data: ingressosData, error } = await supabase
                 .from('ingressos_obtidos')
                 .select(`
                     id,
                     obtido_em,
-                    evento:eventos ( nome, data, local )
+                    evento:eventos ( nome, data, local, imagem_url ) // Incluindo imagem_url
                 `)
                 .order('obtido_em', { ascending: false });
 
             if (error) throw error;
 
-            // Mapeia os dados para uma estrutura mais simples
             const ingressosFormatados = ingressosData.map(item => ({
                 id: item.id,
                 obtidoEm: item.obtido_em,
                 eventoNome: item.evento.nome,
                 eventoData: item.evento.data,
                 eventoLocal: item.evento.local,
+                eventoImagem: item.evento.imagem_url, 
             }));
 
             setIngressos(ingressosFormatados);
@@ -43,7 +42,6 @@ export default function Ingressos({ navigation }) {
         }
     };
 
-    // Recarrega a lista sempre que a tela for focada
     useFocusEffect(
         React.useCallback(() => {
             fetchIngressos();
@@ -83,10 +81,9 @@ export default function Ingressos({ navigation }) {
                     <Text style={styles.cardText}>Data: {new Date(ingresso.eventoData).toLocaleDateString()}</Text>
                     <Text style={styles.cardSubText}>Adquirido em: {new Date(ingresso.obtidoEm).toLocaleDateString()}</Text>
                     
-                    {/* Botão de exemplo para ver detalhes/QR Code */}
                     <TouchableOpacity 
                         style={styles.buttonVer}
-                        onPress={() => Alert.alert('Ingresso', `Detalhes do Ingresso ${ingresso.id}`)}
+                        onPress={() => navigation.navigate('DetalhesView', { ingresso: ingresso })} 
                     >
                         <Text style={styles.buttonText}>Ver Detalhes</Text>
                     </TouchableOpacity>

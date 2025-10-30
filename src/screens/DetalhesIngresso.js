@@ -4,19 +4,16 @@ import { supabase } from '../services/supabase';
 import { FontAwesome } from '@expo/vector-icons';
 
 export default function DetalhesIngresso({ route, navigation }) {
-    // Recebe os parâmetros da tela anterior (Eventos.js)
     const { eventoId, eventoNome, ingressoObtido: initialIngressoObtido, userId } = route.params;
     
     const [ingressoObtido, setIngressoObtido] = useState(initialIngressoObtido);
     const [loading, setLoading] = useState(false);
 
     const handleObterIngresso = async () => {
-        if (ingressoObtido) return; // Já obteve, não faz nada
+        if (ingressoObtido) return;
 
         setLoading(true);
         try {
-            // Insere o registro na tabela ingressos_obtidos
-            // eventoId é um bigint (número)
             const { error } = await supabase
                 .from('ingressos_obtidos')
                 .insert([{ user_id: userId, evento_id: eventoId }]);
@@ -28,10 +25,9 @@ export default function DetalhesIngresso({ route, navigation }) {
             
         } catch (error) {
             console.error('Erro ao obter ingresso:', error);
-            // O erro 23505 é o de violação de UNIQUE (usuário já tem ingresso)
             if (error.code === '23505') {
                  Alert.alert('Erro', 'Você já possui um ingresso para este evento.');
-                 setIngressoObtido(true); // Atualiza o estado local
+                 setIngressoObtido(true);
             } else {
                  Alert.alert('Erro', 'Não foi possível adquirir o ingresso. Tente novamente.');
             }
@@ -41,8 +37,7 @@ export default function DetalhesIngresso({ route, navigation }) {
     };
 
     const handleVerIngresso = () => {
-        // Navega para a tela de Ingressos, que listará todos os ingressos obtidos
-        navigation.navigate('Ingressos');
+        navigation.navigate('Ingressos'); 
     };
 
     return (

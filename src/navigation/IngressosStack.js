@@ -1,23 +1,15 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Ingressos from '../screens/Ingressos';
+import { createStackNavigator } from '@react-navigation/stack';
+import Eventos from '../screens/Eventos';
 import DetalhesIngresso from '../screens/DetalhesIngresso';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 export default function IngressosStack() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen 
-        name="IngressosLista" 
-        component={Ingressos} 
-        options={{ title: 'Meus Ingressos' }}
-      />
-      <Stack.Screen 
-        name="DetalhesIngresso" 
-        component={DetalhesIngresso} 
-        options={{ title: 'Detalhes do Ingresso' }}
-      />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="EventosPrincipal" component={Eventos} /> 
+      <Stack.Screen name="DetalhesIngresso" component={DetalhesIngresso} />
     </Stack.Navigator>
   );
 }
