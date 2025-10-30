@@ -1,97 +1,119 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from "react-native";
-import { supabase } from "../services/supabase";
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { supabase } from '../services/supabase';
+import { FontAwesome } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native'; // Importar useFocusEffect
 
-export default function Eventos() {
-  const [eventos, setEventos] = useState([]);
+export default function Eventos({ navigation }) {
+    const [eventos, setEventos] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [userId, setUserId] = useState(null);
 
-  const buscarEventos = async () => {
-    const { data, error } = await supabase.from("eventos").select("*");
-    if (!error) setEventos(data);
-  };
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            
+            // 1. Obter a sessão e o ID do usuário
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                Alert.alert('Erro', 'Usuário não autenticado.');
+                setLoading(false);
+                return;
+            }
+            const currentUserId = session.user.id;
+            setUserId(currentUserId);
 
-  useEffect(() => {
-    buscarEventos();
-  }, []);
+            // 2. Buscar todos os eventos
+            const { data: eventosData, error: eventosError } = await supabase
+                .from('eventos')
+                .select('*')
+                .order('data', { ascending: true });
 
-  const formatarData = (data) => {
-    const d = new Date(data);
-    return d.toLocaleDateString("pt-BR", {
-      weekday: "short",
-      day: "2-digit",
-      month: "short",
-    });
-  };
+            if (eventosError) throw eventosError;
 
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      {/* (Se tiver imagem no banco pode renderizar aqui com <Image />) */}
-      {/* <Image source={{ uri: item.imagem }} style={styles.img} /> */}
+            // 3. Buscar ingressos obtidos pelo usuário
+            const { data: ingressosObtidosData, error: ingressosObtidosError } = await supabase
+                .from('ingressos_obtidos')
+                .select('evento_id')
+                .eq('user_id', currentUserId);
 
-      <View style={styles.info}>
-        <Text style={styles.data}>{formatarData(item.data)}</Text>
-        <Text style={styles.nome}>{item.nome}</Text>
-        <Text style={styles.local}>{item.local}</Text>
+            if (ingressosObtidosError) throw ingressosObtidosError;
 
-        <TouchableOpacity style={styles.botao}>
-          <Text style={styles.botaoTexto}>Obter Ingressos</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+            // 4. Mapear os eventos para incluir o status do ingresso
+            // Como evento_id é bigint, garantimos que a comparação seja feita corretamente
+            const obtidosMap = new Set(ingressosObtidosData.map(i => i.evento_id));
+            
+            const eventosComStatus = eventosData.map(evento => ({
+                ...evento,
+                ingressoObtido: obtidosMap.has(evento.id)
+            }));
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Eventos</Text>
+            setEventos(eventosComStatus);
 
-      <FlatList
-        data={eventos}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        ListEmptyComponent={
-          <Text style={styles.text}>Nenhum evento encontrado</Text>
+        } catch (error) {
+            console.error('Erro ao buscar eventos:', error);
+            Alert.alert('Erro', 'Não foi possível carregar a lista de eventos.');
+        } finally {
+            setLoading(false);
         }
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
-    </View>
-  );
+    };
+    
+    // Recarrega a lista sempre que a tela for focada (após adquirir um ingresso)
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchData();
+        }, [])
+    );
+
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#1E40AF" />
+            </View>
+        );
+    }
+
+    return (
+        <ScrollView style={styles.container}>
+            <Text style={styles.title}>Próximos Eventos</Text>
+            {eventos.map((evento) => (
+                <View key={evento.id} style={styles.card}>
+                    <Text style={styles.cardTitle}>{evento.nome}</Text>
+                    <Text style={styles.cardText}>Data: {new Date(evento.data).toLocaleDateString()}</Text>
+                    <Text style={styles.cardText}>Local: {evento.local}</Text>
+                    
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            evento.ingressoObtido ? styles.buttonObtido : styles.buttonObter
+                        ]}
+                        onPress={() => navigation.navigate('DetalhesIngresso', { 
+                            eventoId: evento.id, 
+                            eventoNome: evento.nome,
+                            ingressoObtido: evento.ingressoObtido,
+                            userId: userId
+                        })}
+                    >
+                        <Text style={styles.buttonText}>
+                            {evento.ingressoObtido ? 'Ingresso Obtido' : 'Obter Ingresso'}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            ))}
+        </ScrollView>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 15 },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#000",
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  card: {
-    flexDirection: "row",
-    backgroundColor: "#f5f5f5",
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 15,
-    alignItems: "center",
-    elevation: 3,
-  },
-  info: { flex: 1 },
-  data: { color: "red", fontWeight: "bold", fontSize: 14 },
-  nome: { fontSize: 18, fontWeight: "bold", marginVertical: 2 },
-  local: { fontSize: 14, color: "#444", marginBottom: 8 },
-  botao: {
-    backgroundColor: "#E53935",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    alignSelf: "flex-start",
-  },
-  botaoTexto: { color: "#fff", fontWeight: "bold" },
-  text: { textAlign: "center", color: "#888", marginTop: 20 },
-  img: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    marginRight: 12,
-  },
+    container: { flex: 1, backgroundColor: '#F5F5F5', padding: 10 },
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    title: { fontSize: 24, fontWeight: 'bold', marginVertical: 10, color: '#1E40AF' },
+    card: { backgroundColor: '#FFF', padding: 15, borderRadius: 8, marginBottom: 10, elevation: 2 },
+    cardTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 5, color: '#333' },
+    cardText: { fontSize: 14, color: '#555' },
+    button: { padding: 10, borderRadius: 5, marginTop: 10, alignItems: 'center' },
+    buttonObter: { backgroundColor: '#B91C1C' }, // Vermelho para Obter
+    buttonObtido: { backgroundColor: '#1E40AF' }, // Azul para Obtido
+    buttonText: { color: '#FFF', fontWeight: 'bold' },
 });
