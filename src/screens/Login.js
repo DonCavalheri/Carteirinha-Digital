@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { supabase } from '../services/supabase';
+import { Ionicons as Icon } from '@expo/vector-icons'; 
 
 export default function Login({ navigation }) {
     const [cpf, setCpf] = useState('');
