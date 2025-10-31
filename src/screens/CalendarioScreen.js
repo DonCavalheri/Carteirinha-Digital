@@ -23,7 +23,6 @@ export default function CalendarioScreen() {
 
     setEventos(data);
 
-    // Marcar datas no calendário
     let marcadosTemp = {};
     data.forEach(ev => {
       let inicio = new Date(ev.data_inicio);

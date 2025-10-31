@@ -1,11 +1,11 @@
 export const theme = {
   colors: {
-    primary: '#1E3A8A',     // azul fundo
-    secondary: '#EF4444',   // vermelho botões
-    background: '#F1F5F9',  // cinza claro
-    textLight: '#FFFFFF',   // texto branco
-    textDark: '#111827',    // texto preto
-    card: '#FFFFFF',        // cards brancos
+    primary: '#1E3A8A',    
+    secondary: '#EF4444',  
+    background: '#F1F5F9',  
+    textLight: '#FFFFFF',   
+    textDark: '#111827',    
+    card: '#FFFFFF',        
   },
   font: {
     title: 24,

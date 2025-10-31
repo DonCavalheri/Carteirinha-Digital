@@ -48,8 +48,6 @@ export default function Configuracoes({ navigation }) {
           <Text style={styles.name}>{usuario.nome} {usuario.sobrenome}</Text>
         </View>
       )}
-
-      {/* Seção 1 - Configurações de Conta */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Configurações de conta</Text>
 
@@ -82,7 +80,6 @@ export default function Configuracoes({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Seção 2 - Informações e Suporte */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Informações e Suporte</Text>
 

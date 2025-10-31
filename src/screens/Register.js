@@ -3,13 +3,13 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, Scro
 import { supabase } from '../services/supabase';
 import { Ionicons as Icon } from '@expo/vector-icons'; 
 export default function Register({ navigation }) {
-    const [nome, setNome] = useState(''); // Nome
-    const [sobrenome, setSobrenome] = useState(''); // Sobrenome
+    const [nome, setNome] = useState(''); 
+    const [sobrenome, setSobrenome] = useState(''); 
     const [cpf, setCpf] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [repetirSenha, setRepetirSenha] = useState('');
-    const [showPassword, setShowPassword] = useState(false); // Estado para o "olhinho"
+    const [showPassword, setShowPassword] = useState(false); 
     const [loading, setLoading] = useState(false);
 
     const handleRegister = async () => {
@@ -86,12 +86,10 @@ export default function Register({ navigation }) {
                         <TextInput placeholder="Digite seu CPF" style={styles.input} keyboardType="numeric" value={cpf} onChangeText={setCpf} placeholderTextColor="#666" editable={!loading} />
                     </View>
                     
-                    {/* Nome */}
                     <View style={styles.inputContainer}>
                         <TextInput placeholder="Nome" style={styles.input} value={nome} onChangeText={setNome} placeholderTextColor="#666" editable={!loading} />
                     </View>
 
-                    {/* Sobrenome */}
                     <View style={styles.inputContainer}>
                         <TextInput placeholder="Sobrenome" style={styles.input} value={sobrenome} onChangeText={setSobrenome} placeholderTextColor="#666" editable={!loading} />
                     </View>
@@ -100,7 +98,6 @@ export default function Register({ navigation }) {
                         <TextInput placeholder="Email" style={styles.input} keyboardType="email-address" value={email} onChangeText={setEmail} placeholderTextColor="#666" editable={!loading} />
                     </View>
 
-                    {/* Senha com "olhinho" */}
                     <View style={styles.inputContainer}>
                         <TextInput placeholder="Senha" style={styles.input} secureTextEntry={!showPassword} value={senha} onChangeText={setSenha} placeholderTextColor="#666" editable={!loading} />
                         <TouchableOpacity onPress={() => setShowPassword(!showPassword)} disabled={loading}>
@@ -108,7 +105,6 @@ export default function Register({ navigation }) {
                         </TouchableOpacity>
                     </View>
 
-                    {/* Repetir Senha */}
                     <View style={styles.inputContainer}>
                         <TextInput placeholder="Repetir senha" style={styles.input} secureTextEntry={!showPassword} value={repetirSenha} onChangeText={setRepetirSenha} placeholderTextColor="#666" editable={!loading} />
                     </View>

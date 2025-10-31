@@ -14,7 +14,6 @@ export default function Suporte() {
     { id: 3, titulo: 'QR Code não funciona', detalhe: 'Isso pode ocorrer se a câmera do dispositivo não conseguir ler o código ou se o ingresso já tiver sido utilizado.' },
   ];
 
-  // Carregar usuário logado
   useEffect(() => {
     const carregarUsuario = async () => {
       const { data, error } = await supabase.auth.getUser();

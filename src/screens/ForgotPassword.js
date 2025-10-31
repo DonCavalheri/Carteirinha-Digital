@@ -14,7 +14,6 @@ export default function ForgotPassword({ navigation }) {
     }
 
     try {
-      // Busca o e-mail vinculado ao CPF informado
       const { data: estudante, error } = await supabase
         .from('estudantes')
         .select('email, nome')
@@ -28,10 +27,8 @@ export default function ForgotPassword({ navigation }) {
 
       const { email } = estudante;
 
-      // Gera o deep link do app
       const redirectTo = Linking.createURL('reset-password');
 
-      // Envia o link de redefinição para o e-mail cadastrado
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo,
       });

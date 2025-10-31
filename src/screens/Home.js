@@ -3,38 +3,35 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput 
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { supabase } from '../services/supabase';
 
-// --- DADOS DOS SERVIÇOS ---
-// Nomes das telas corrigidos para corresponder ao seu DrawerNavigator
 const ALL_SERVICES_DATA = [
     { 
         name: 'Carteirinha Offline', 
         icon: 'id-card', 
         description: 'A CED oferece a possibilidade de utilizar a sua carteirinha de estudante digital...',
         details: 'A CED oferece a possibilidade de utilizar a sua carteirinha de estudante digital sem precisar de acesso a internet! Basta baixar sua credencial e poder usar onde e quando quiser!',
-        screen: 'Credencial' // Assumindo que 'Credencial' está no TabNavigator
+        screen: 'Credencial' 
     },
     { 
         name: 'Calendário', 
         icon: 'calendar-today', 
         description: 'O calendário da CED é integrado ao da escola...',
         details: 'O calendário da CED é integrado ao da escola, exibe e marca os dias que tem eventos, campanhas, provas e muito mais! Muito valioso para estar sempre atualizado sobre tudo de importante que a escola tem para dizer.',
-        screen: 'Calendário' // Nome da rota no DrawerNavigator
+        screen: 'Calendário' 
     },
     { 
         name: 'Frequência Escolar', 
         icon: 'check-circle', 
         description: 'Acompanhe sua frequência escolar.',
         details: 'A frequência é incorporada a da escola, sendo assim, pode acompanhar sua presença nas aulas e ter um controle maior sobre as matérias e faltas. A frequência é atualizada automaticamente quando uma chamada é feita.',
-        screen: 'Frequência' // Nome da rota no DrawerNavigator
+        screen: 'Frequência' 
     },
     { 
         name: 'Suporte', 
         icon: 'support-agent', 
         description: 'Entre em contato com o suporte técnico.',
         details: 'O suporte é personalizado e estamos sempre a disposição de qualquer dúvida que encontrar.',
-        screen: 'Suporte' // Assumindo que 'Suporte' está no TabNavigator ou Stack
+        screen: 'Suporte' 
     },
-    // Outros serviços que só aparecem na busca
     { name: 'Configurações', icon: 'settings', description: 'Ajuste as configurações do seu aplicativo.', details: 'Gerencie suas preferências de notificação, segurança e privacidade.', screen: 'Configurações' }, // Nome da rota no DrawerNavigator
     { name: 'Dados', icon: 'person', description: 'Visualize e edite seus dados pessoais.', details: 'Mantenha suas informações cadastrais sempre atualizadas.', screen: 'Dados' }, // Assumindo que 'Dados' está no TabNavigator ou Stack
     { name: 'Eventos', icon: 'event', description: 'Fique por dentro dos eventos da escola.', details: 'Veja a agenda completa de eventos, campanhas e atividades escolares.', screen: 'Eventos' }, // Assumindo que 'Eventos' está no TabNavigator ou Stack
@@ -42,20 +39,16 @@ const ALL_SERVICES_DATA = [
     { name: 'Notícias', icon: 'article', description: 'Leia as últimas notícias da escola.', details: 'Receba comunicados e novidades importantes diretamente no seu celular.', screen: 'Notícias' }, // Nome da rota no DrawerNavigator
 ];
 
-// --- COMPONENTE DE ITEM DE SERVIÇO ---
 const ServiceItem = ({ item, navigation, expandedItem, setExpandedItem }) => {
     const isExpanded = expandedItem === item.name;
 
     const handlePress = () => {
-        // Ao clicar no nome, expande/contrai o texto de detalhes
         setExpandedItem(isExpanded ? null : item.name);
     };
 
     const handleNavigate = () => {
-        // Ao clicar na seta, navega para a tela
         if (item.screen) {
             try {
-                // A navegação deve funcionar agora com os nomes corretos
                 navigation.navigate(item.screen);
             } catch (e) {
                 Alert.alert('Erro de Navegação', `A tela "${item.screen}" não foi encontrada no seu navegador. Verifique o nome da rota no TabNavigator ou DrawerNavigator.`);
@@ -68,18 +61,15 @@ const ServiceItem = ({ item, navigation, expandedItem, setExpandedItem }) => {
     return (
         <View style={styles.serviceItemContainer}>
             <View style={styles.serviceItem}>
-                {/* Nome do Serviço (Expansão ao clicar no nome) */}
                 <TouchableOpacity style={styles.serviceTextContainer} onPress={handlePress}>
                     <Text style={styles.serviceName}>{item.name}</Text>
                 </TouchableOpacity>
-                
-                {/* Seta (Navegação ao clicar na seta) */}
+             
                 <TouchableOpacity onPress={handleNavigate}>
                     <MaterialIcons name="keyboard-arrow-right" size={30} color="#B91C1C" />
                 </TouchableOpacity>
             </View>
-            
-            {/* Detalhes Expandidos */}
+
             {isExpanded && (
                 <View style={styles.detailsContainer}>
                     <Text style={styles.detailsText}>{item.details}</Text>
@@ -129,16 +119,13 @@ export default function Home({ navigation }) {
         }
     };
 
-    // Lógica de filtro de busca
     const filteredServices = useMemo(() => {
         const lowerCaseSearch = searchText.toLowerCase();
         
         if (!searchText) {
-            // Se a busca estiver vazia, mostra APENAS os 4 primeiros itens
             return ALL_SERVICES_DATA.slice(0, 4);
         }
 
-        // Se estiver buscando, filtra em TODOS os itens
         return ALL_SERVICES_DATA.filter(service => 
             service.name.toLowerCase().includes(lowerCaseSearch)
         );
@@ -154,7 +141,6 @@ export default function Home({ navigation }) {
 
     return (
         <View style={styles.container}>
-            {/* CABEÇALHO COM NOME DO USUÁRIO E LOGOUT */}
             <View style={styles.header}>
                 <Text style={styles.welcomeText}>Olá, {userName}</Text> 
                 <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
@@ -163,7 +149,6 @@ export default function Home({ navigation }) {
             </View>
 
             <ScrollView style={styles.content}>
-                {/* ÍCONES DE SERVIÇOS */}
                 <View style={styles.iconRow}>
                     <View style={styles.iconItem}>
                         <FontAwesome name="graduation-cap" size={40} color="#B91C1C" />
@@ -179,7 +164,6 @@ export default function Home({ navigation }) {
                     </View>
                 </View>
 
-                {/* CAIXA DE BUSCA DE SERVIÇOS */}
                 <View style={styles.searchBox}>
                     <TextInput
                         style={styles.searchInput}
@@ -190,7 +174,6 @@ export default function Home({ navigation }) {
                     <MaterialIcons name="search" size={24} color="#B91C1C" style={styles.searchIcon} />
                 </View>
 
-                {/* LISTA DE SERVIÇOS FILTRADA */}
                 <View style={styles.serviceList}>
                     {filteredServices.map((item) => (
                         <ServiceItem 
@@ -210,7 +193,6 @@ export default function Home({ navigation }) {
     );
 }
 
-// --- ESTILOS ---
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -239,7 +221,6 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
     },
-    // Estilos para a linha de ícones no topo
     iconRow: {
         flexDirection: 'row',
         justifyContent: 'space-around',
@@ -263,7 +244,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#333',
     },
-    // Estilos para a caixa de busca
+
     searchBox: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -286,7 +267,6 @@ const styles = StyleSheet.create({
     searchIcon: {
         marginLeft: 10,
     },
-    // Estilos para a lista de serviços
     serviceList: {
         backgroundColor: '#FFF',
         borderRadius: 10,

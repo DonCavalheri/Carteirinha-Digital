@@ -6,7 +6,7 @@ import { Ionicons as Icon } from '@expo/vector-icons';
 export default function Login({ navigation }) {
     const [cpf, setCpf] = useState('');
     const [senha, setSenha] = useState('');
-    const [showPassword, setShowPassword] = useState(false); // Estado para o "olhinho"
+    const [showPassword, setShowPassword] = useState(false); 
     const [loading, setLoading] = useState(false);
 
     const handleLogin = async () => {
@@ -18,7 +18,6 @@ export default function Login({ navigation }) {
         setLoading(true);
 
         try {
-            // 1. Mapear CPF para Email
             const { data: estudante, error: fetchError } = await supabase
                 .from('estudantes')
                 .select('email')
@@ -32,8 +31,6 @@ export default function Login({ navigation }) {
             }
 
             const email = estudante.email;
-
-            // 2. Usar o Supabase Auth para fazer o login com Email e Senha
             const { error: authError } = await supabase.auth.signInWithPassword({
                 email: email,
                 password: senha,
@@ -45,7 +42,6 @@ export default function Login({ navigation }) {
                 return;
             }
 
-            // 3. Sucesso
             navigation.replace('HomeTabs', { cpf });
 
         } catch (err) {
@@ -65,7 +61,6 @@ export default function Login({ navigation }) {
             <View style={styles.bottomContainer}>
                 <Text style={styles.title}>Login</Text>
 
-                {/* CPF */}
                 <View style={styles.inputContainer}>
                     <Icon name="card-outline" size={22} color="#999" style={styles.icon} />
                     <TextInput 
@@ -78,20 +73,17 @@ export default function Login({ navigation }) {
                         editable={!loading}
                     />
                 </View>
-
-                {/* Senha */}
                 <View style={styles.inputContainer}>
                     <Icon name="lock-closed-outline" size={22} color="#999" style={styles.icon} />
                     <TextInput 
                         placeholder="Senha" 
                         style={styles.input} 
-                        secureTextEntry={!showPassword} // Controlado pelo estado
+                        secureTextEntry={!showPassword} 
                         value={senha} 
                         onChangeText={setSenha} 
                         placeholderTextColor="#999"
                         editable={!loading}
                     />
-                    {/* Ícone "olhinho" */}
                     <TouchableOpacity onPress={() => setShowPassword(!showPassword)} disabled={loading}>
                         <Icon name={showPassword ? "eye-outline" : "eye-off-outline"} size={22} color="#999" />
                     </TouchableOpacity>

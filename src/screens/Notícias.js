@@ -20,13 +20,11 @@ export default function Noticias() {
     else console.log(error);
   };
 
-  // Função para calcular rótulo relativo (Hoje, Ontem, Semana Passada...)
   const getRotulo = (dataISO) => {
     const hoje = new Date();
     const data = new Date(dataISO);
 
-    const diff = Math.floor((hoje - data) / (1000 * 60 * 60 * 24)); // diferença em dias
-
+    const diff = Math.floor((hoje - data) / (1000 * 60 * 60 * 24)); 
     if (diff === 0) return "Hoje";
     if (diff === 1) return "Ontem";
     if (diff <= 7) return "Semana Passada";
