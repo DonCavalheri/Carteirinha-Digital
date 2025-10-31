@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator } from 'react-native';
+import { 
+    View, Text, TextInput, TouchableOpacity, StyleSheet, 
+    Alert, Image, ActivityIndicator, KeyboardAvoidingView, 
+    ScrollView, Platform 
+} from 'react-native';
 import { supabase } from '../services/supabase';
 import { Ionicons as Icon } from '@expo/vector-icons'; 
 
@@ -25,7 +29,7 @@ export default function Login({ navigation }) {
                 .single();
 
             if (fetchError || !estudante) {
-                Alert.alert('Erro de Login', 'CPF ou Senha incorretos. Por favor, verifique os dados.');
+                Alert.alert('Erro de Login', 'CPF ou Senha incorretos.');
                 setLoading(false);
                 return;
             }
@@ -37,7 +41,7 @@ export default function Login({ navigation }) {
             });
 
             if (authError) {
-                Alert.alert('Erro de Login', 'CPF ou Senha incorretos. Por favor, tente novamente.');
+                Alert.alert('Erro de Login', 'CPF ou Senha incorretos.');
                 setLoading(false);
                 return;
             }
@@ -46,13 +50,19 @@ export default function Login({ navigation }) {
 
         } catch (err) {
             console.error(err);
-            Alert.alert('Erro inesperado', 'Ocorreu um erro durante o processo de login. Tente novamente.');
+            Alert.alert('Erro inesperado', 'Tente novamente.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
+<KeyboardAvoidingView 
+    style={{ flex: 1 }} 
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+>
+<ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+
         <View style={styles.container}>
             <View style={styles.topContainer}>
                 <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
@@ -109,6 +119,9 @@ export default function Login({ navigation }) {
                 </View>
             </View>
         </View>
+
+</ScrollView>
+</KeyboardAvoidingView>
     );
 }
 

@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ScrollView, ActivityIndicator } from 'react-native';
+import { 
+    View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, 
+    Image, ScrollView, ActivityIndicator, KeyboardAvoidingView, 
+    Platform 
+} from 'react-native';
 import { supabase } from '../services/supabase';
 import { Ionicons as Icon } from '@expo/vector-icons'; 
 export default function Register({ navigation }) {
@@ -21,7 +25,7 @@ export default function Register({ navigation }) {
             Alert.alert('Erro', 'As senhas não coincidem!');
             return;
         }
-        
+
         setLoading(true);
 
         try {
@@ -38,7 +42,7 @@ export default function Register({ navigation }) {
                 setLoading(false);
                 return;
             }
-            
+
             const userId = authData.user.id;
             const { error: profileError } = await supabase
                 .from('estudantes')
@@ -53,23 +57,27 @@ export default function Register({ navigation }) {
                 ]);
 
             if (profileError) {
-                Alert.alert('Erro ao Salvar Perfil', 'Conta criada, mas houve um erro ao salvar os dados. Tente fazer login.');
+                Alert.alert('Erro ao Salvar Perfil', 'Conta criada, faça login.');
                 setLoading(false);
                 return;
             }
 
-            Alert.alert('Sucesso', 'Conta criada! Você já pode fazer login.');
+            Alert.alert('Sucesso', 'Conta criada! Faça login.');
             navigation.navigate('Login');
 
         } catch (error) {
             console.error(error);
-            Alert.alert('Erro inesperado', 'Ocorreu um erro durante o cadastro. Tente novamente.');
+            Alert.alert('Erro inesperado', 'Tente novamente.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
+<KeyboardAvoidingView 
+    style={{ flex: 1 }} 
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+>
         <View style={styles.container}>
             <View style={styles.topContainer}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} disabled={loading}>
@@ -79,13 +87,13 @@ export default function Register({ navigation }) {
             </View>
 
             <View style={styles.bottomContainer}>
-                <ScrollView contentContainerStyle={styles.scrollContent}>
+                <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
                     <Text style={styles.title}>Crie sua conta</Text>
 
                     <View style={styles.inputContainer}>
                         <TextInput placeholder="Digite seu CPF" style={styles.input} keyboardType="numeric" value={cpf} onChangeText={setCpf} placeholderTextColor="#666" editable={!loading} />
                     </View>
-                    
+
                     <View style={styles.inputContainer}>
                         <TextInput placeholder="Nome" style={styles.input} value={nome} onChangeText={setNome} placeholderTextColor="#666" editable={!loading} />
                     </View>
@@ -119,6 +127,7 @@ export default function Register({ navigation }) {
                 </ScrollView>
             </View>
         </View>
+</KeyboardAvoidingView>
     );
 }
 
