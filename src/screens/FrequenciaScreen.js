@@ -49,8 +49,8 @@ export default function FrequenciaScreen({ route }) {
     }
 
     let totalAulas = freq.length;
-    let faltas = freq.filter(f => f.status === "falta").length;
-    let presencas = freq.filter(f => f.status === "presente").length;
+    let faltas = freq.filter(f => f.status?.toLowerCase() === "falta").length;
+    let presencas = freq.filter(f => f.status?.toLowerCase() === "presente").length;
 
     let porDisciplina = {};
     freq.forEach(f => {
@@ -59,7 +59,7 @@ export default function FrequenciaScreen({ route }) {
         porDisciplina[disc] = { total: 0, presencas: 0 };
       }
       porDisciplina[disc].total++;
-      if (f.status === "presente") porDisciplina[disc].presencas++;
+      if (f.status?.toLowerCase() === "presente") porDisciplina[disc].presencas++;
     });
 
     setDados({
